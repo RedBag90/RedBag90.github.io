@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Meta tags for encoding and responsive design -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Page title shown in the browser tab -->
+  <title>Business Trip Checklist</title>
+
+  <!-- External CSS file for styling -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Page container to center content -->
+  <div class="container">
+    <h1>Business Trip Checklist</h1>
+
+    <main class="main-grid">
+      <!-- ================= Form Section ================= -->
+      <section class="form-section">
+        <form id="tripForm">
+          
+          <!-- Trip Type Selection -->
+          <label for="tripType">Trip Type:</label>
+          <select id="tripType">
+            <option value="domestic">Domestic</option>
+            <option value="international">International</option>
+          </select>
+
+          <!-- Trip Duration -->
+          <label for="tripDuration">Trip Duration (days):</label>
+          <input type="number" id="tripDuration" min="1" value="3" />
+
+          <!-- User Role -->
+          <label for="tripRole">Your Role:</label>
+          <select id="tripRole">
+            <option value="attendee">Attendee</option>
+            <option value="speaker">Moderator</option>
+            <option value="manager">Manager</option>
+          </select>
+
+          <!-- Destination City -->
+          <p>Destination City:</p>
+          <div class="city-options">
+            <label>
+              <input type="radio" name="cityOption" value="Hamburg" />
+              Hamburg
+           </label>
+            <label>
+              <input type="radio" name="cityOption" value="Frankfurt" />
+              Frankfurt
+            </label>
+          </div>
+          <label>
+            <input type="radio" name="cityOption" value="custom" checked />
+            Other:
+          </label>
+          <input type="text" id="customCity" placeholder="Enter city name" />
+
+
+          <!-- Activities -->
+          <p>Activities:</p>
+          <div class="activity-grid">
+            <label><input type="checkbox" value="pitching" class="activity" /> Pitching</label>
+            <label><input type="checkbox" value="clientmeeting" class="activity" /> Client Meeting</label>
+            <label><input type="checkbox" value="projectwork" class="activity" /> Project Work</label>
+            <label><input type="checkbox" value="workshop" class="activity" /> Workshop</label>
+            <label><input type="checkbox" value="networking" class="activity" /> Networking</label>
+          </div>
+
+          <!-- Generate button -->
+          <br />
+          <button type="button" id="generateBtn">Generate Checklist</button>
+        </form>
+      </section>
+
+      <!-- ================= Output Section ================= -->
+      <section class="output-section">
+        <h2>Weather</h2>
+          <p id="weatherOutput"></p>
+
+        <h2>To Pack</h2>
+          <div id="checklistOutput"></div>
+
+        <h2>Packed Items</h2>
+          <div id="packedOutput"></div>
+     
+      </section>
+    </main>
+  </div>
+
+  <!-- JavaScript for checklist and weather logic -->
+  <script src="script.js"></script>
+</body>
+</html>
