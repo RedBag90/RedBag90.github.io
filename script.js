@@ -39,7 +39,6 @@ const modules = {
   Electronics: [
     { name: "Phone and Charger" },
     { name: "Laptop and Charger" },
-    { name: "Smartphone and Charger" },
     { name: "Tablet and Charger" },
     { name: "Headphones" },
     { name: "Presentation Clicker", requiredForActivities: ["pitching"] },
