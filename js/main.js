@@ -5,11 +5,11 @@ import { debounce } from './utils.js';
 
 // helper to read form values in one place
 function getFormData() {
-  const tripRole  = qs('#tripRole').value;
+
   const activities = Array.from(
     document.querySelectorAll('.activity:checked')
   ).map(el => el.value);
-  return {tripRole, activities };
+  return {activities };
 }
 
 // === Generate button ===

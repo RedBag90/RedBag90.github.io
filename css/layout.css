@@ -25,6 +25,7 @@
     gap: 0px;
     flex-direction: column;
     margin: 5px 0 10px;
+    margin-bottom: 0px;
   }
   .city-options label {
     display: flex;
@@ -44,4 +45,5 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    
   }

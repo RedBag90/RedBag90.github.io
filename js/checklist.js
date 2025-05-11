@@ -19,8 +19,7 @@ export const modules = {
     ],
     documents: [
         { name: "Work ID" },
-        { name: "Passport", requiredForTripType: "international" },
-        { name: "Personal ID", requiredForTripType: "domestic" },
+        { name: "Passport/Personal ID"},
         { name: "Travel Ticket" },
         { name: "Meeting Agenda", requiredForActivities: ["clientmeeting", "workshop"] },
         { name: "Business Cards" },
