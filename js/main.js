@@ -5,12 +5,11 @@ import { debounce } from './utils.js';
 
 // helper to read form values in one place
 function getFormData() {
-  const tripType  = qs('#tripType').value;
   const tripRole  = qs('#tripRole').value;
   const activities = Array.from(
     document.querySelectorAll('.activity:checked')
   ).map(el => el.value);
-  return { tripType, tripRole, activities };
+  return {tripRole, activities };
 }
 
 // === Generate button ===
@@ -33,14 +32,14 @@ document
     })
   );
 
-// === Debounce custom-city input ===
-qs('#customCity').addEventListener(
+  // === Debounce custom-city input ===
+  qs('#customCity').addEventListener(
   'input',
   debounce(() => {
     showLoadingWeather();
     handleLocationChange();
   }, 500)
-);
+  );
 
 // === On page load: init checklist & weather ===
 window.addEventListener('DOMContentLoaded', () => {
@@ -49,4 +48,4 @@ window.addEventListener('DOMContentLoaded', () => {
 
   showLoadingWeather();
   handleLocationChange();
-});
+  });

@@ -191,26 +191,43 @@ function deleteItem(name, isPacked) {
  * @param {{}} formData  — your existing filter inputs (tripType, duration, role, activities)
  */
 export function generateChecklist(formData) {
-    // reset
-    toPackList = [];
-    packedList = [];
-  
-    // for each section in your grouping…
-    Object.entries(checklistGroups).forEach(([sectionName, moduleKeys]) => {
-      // 1) push a header marker
-      toPackList.push({ isHeader: true, name: sectionName });
-  
-      // 2) for each module key in that group, push its items
-      moduleKeys.forEach(key => {
-        modules[key].forEach(item => {
-          toPackList.push({ isHeader: false, name: item.name, checked: false });
-        });
+  // Destructure the filters from the form data
+  const { activities = [] } = formData;
+
+  // reset both lists
+  toPackList = [];
+  packedList = [];
+
+  // for each section in your grouping…
+  Object.entries(checklistGroups).forEach(([sectionName, moduleKeys]) => {
+    // 1) Gather all items in this group…
+    const filteredItems = moduleKeys
+      .flatMap(key => modules[key])
+      .filter(item => {
+
+        // Enforce at least one matching activity if required
+        if (item.requiredForActivities) {
+          const ok = activities.some(act =>
+            item.requiredForActivities.includes(act)
+          );
+          if (!ok) return false;
+        }
+        return true; // otherwise it’s included
       });
-    });
-  
-    saveState();
-    renderChecklists();
-  }
+
+    // 2) Only if there are items, push the section header + its items
+    if (filteredItems.length) {
+      toPackList.push({ isHeader: true, name: sectionName });
+      filteredItems.forEach(item =>
+        toPackList.push({ isHeader: false, name: item.name, checked: false })
+      );
+    }
+  });
+
+  saveState();
+  renderChecklists();
+}
+
   
 
 /**

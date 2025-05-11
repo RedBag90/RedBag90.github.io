@@ -22,7 +22,8 @@
   /* City radio-button group */
   .city-options {
     display: flex;
-    gap: 20px;
+    gap: 0px;
+    flex-direction: column;
     margin: 5px 0 10px;
   }
   .city-options label {
@@ -33,7 +34,8 @@
   
   /* Activity checkboxes grid */
   .activity-grid {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     grid-template-columns: 1fr 1fr;
     gap: 8px 16px;
     margin-bottom: 15px;
