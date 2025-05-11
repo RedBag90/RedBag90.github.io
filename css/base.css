@@ -1,0 +1,39 @@
+/* Resets and base typography */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    /* Sets a clean, readable font */
+    font-family: Arial, sans-serif;
+  
+    /* Light gray background for contrast */
+    background-color: #f6f6f6;
+  
+    /* Adds space around the content */
+    padding: 30px;
+  
+    /* Centers content horizontally using Flexbox */
+    display: flex;
+    justify-content: center;
+  }
+  
+  .container {
+    /* White background for content contrast */
+    background-color: white;
+  
+    /* Padding inside the container */
+    padding: 30px;
+  
+    /* Rounded corners */
+    border-radius: 12px;
+  
+    /* Subtle shadow for depth */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+    /* Responsive width */
+    width: 100%;
+    max-width: 700px;
+  }

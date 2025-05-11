@@ -1,0 +1,109 @@
+/* Forms */
+form {
+    display: flex;
+    flex-direction: column;
+  }
+  label,
+  select,
+  input {
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  input,
+  select {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  /* Main button styling */
+  button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Checklist output spacing */
+  #checklistOutput {
+    margin-top: 5px;
+  }
+  
+  /* Checklist Groups */
+  .checklist-super-group {
+    margin-top: 2px;
+    padding: 2px 0;
+  }
+  .checklist-super-group h2 {
+    font-size: 12px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 2px;
+    padding-bottom: 5px;
+  }
+  .checklist-group {
+    margin-bottom: 2px;
+  }
+  .checklist-group h3 {
+    margin-bottom: 2px;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Individual checklist items */
+  .checklist-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .checklist-item .delete-btn {
+    margin-left: auto;
+  }
+  .checklist-item input {
+    margin-right: 10px;
+  }
+  
+  /* Delete (trash) button */
+  .delete-btn {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px;
+    line-height: 1;
+    display: flex;
+
+  }
+  .delete-btn:hover {
+    color: red;
+  }
+  
+  /* Weather output */
+/* Smooth Fade-In Animation for Weather Output */
+#weatherOutput {
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+    margin-bottom: 20px; /* or however much space you’d like */
+
+  }
+  
+  .weather-loading {
+    opacity: 1;
+  }
+
+  .section-header {
+    margin-top: 1em;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+  }
+  
