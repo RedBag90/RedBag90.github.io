@@ -214,6 +214,7 @@ function moveToPacked(name) {
   packedList.push({ name, checked: true });
   saveState();
   renderChecklists();
+  updatePackingProgress();
 }
 
 /**
@@ -225,6 +226,7 @@ function moveToToPack(name) {
   toPackList.push({ name, checked: false });
   saveState();
   renderChecklists();
+  updatePackingProgress();
 }
 
 /**
@@ -240,6 +242,7 @@ function deleteItem(name, isPacked) {
   }
   saveState();
   renderChecklists();
+  updatePackingProgress();
 }
 
 // ===========================
@@ -280,6 +283,7 @@ export function generateChecklist(formData) {
 
   saveState();
   renderChecklists();
+  updatePackingProgress();
 }
 
 // ===========================
@@ -297,4 +301,42 @@ export function initChecklist(formData) {
   } else {
     generateChecklist(formData);
   }
+}
+
+
+
+
+
+// ===========================
+// Packing Progress Bar
+// ===========================
+/**
+ * Updates the packing progress bar based on the number of packed and unpacked boxes.
+ * Calculates the percentage of packed boxes and updates the UI accordingly.
+ */
+// This function is called whenever the packing status changes
+// (e.g., when a checkbox is checked/unchecked).
+// It updates the progress bar and text to reflect the current packing status.
+// It assumes that the packing checklist and packed boxes are represented
+// as checkboxes in the DOM with specific IDs.
+// The function calculates the total number of boxes (both packed and unpacked)
+// and the number of packed boxes. It then computes the percentage of packed boxes
+// and updates the width of the progress bar and the text content to show the percentage.
+// The progress bar is represented by an element with the ID 'progressBar',
+// and the text is represented by an element with the ID 'progressText'.
+// The function is designed to be called whenever the packing status changes,
+// ensuring that the progress bar and text are always up to date with the current packing status.
+
+export function updatePackingProgress() {
+  const toPackBoxes = document.querySelectorAll('#checklistOutput input[type="checkbox"]');
+  const packedBoxes = document.querySelectorAll('#packedOutput input[type="checkbox"]');
+  const totalItems = toPackBoxes.length + packedBoxes.length;
+  const packedCount = packedBoxes.length;
+  const percent = totalItems === 0 ? 0 : Math.round((packedCount / totalItems) * 100);
+
+  // Update bar width and text
+  const bar = document.getElementById('progressBar');
+  const text = document.getElementById('progressText');
+  bar.style.width = `${percent}%`;
+  text.textContent = `${percent}%`;
 }

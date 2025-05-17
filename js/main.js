@@ -8,7 +8,7 @@
  */
 
 import { qs } from './utils.js';
-import { initChecklist, generateChecklist } from './checklist.js';
+import { initChecklist, generateChecklist, updatePackingProgress } from './checklist.js';
 import { showLoadingWeather, handleLocationChange } from './weather.js';
 import { debounce } from './utils.js';
 
@@ -42,6 +42,7 @@ qs('#generateBtn').addEventListener('click', () => {
   // Show loading indicator and fetch updated weather
   showLoadingWeather();
   handleLocationChange();
+  updatePackingProgress();
 });
 
 // Weather city selection change: update weather display
