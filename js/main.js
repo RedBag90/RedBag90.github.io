@@ -11,6 +11,7 @@ import { qs } from './utils.js';
 import { initChecklist, generateChecklist } from './checklist.js';
 import { showLoadingWeather, handleLocationChange } from './weather.js';
 import { debounce } from './utils.js';
+import { showLoadingHotels, handleHotelsFetch } from './hotels.js';
 
 // ===========================
 // Form Data Extraction
@@ -42,6 +43,8 @@ qs('#generateBtn').addEventListener('click', () => {
   // Show loading indicator and fetch updated weather
   showLoadingWeather();
   handleLocationChange();
+  showLoadingHotels();
+  handleLocationChange();
 });
 
 // Weather city selection change: update weather display
@@ -52,6 +55,8 @@ document
     radio.addEventListener('change', () => {
       showLoadingWeather();
       handleLocationChange();
+      showLoadingHotels();
+      handleHotelsFetch();
     })
   );
 
@@ -80,4 +85,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize weather module
   showLoadingWeather();
   handleLocationChange();
+  showLoadingHotels();
+  handleHotelsFetch();
 });
