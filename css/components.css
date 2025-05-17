@@ -251,3 +251,17 @@ button:hover {
   font-size: 0.9rem;
   margin-bottom: 10px;
 }
+
+
+/* Header above the packing progress bar */
+/* This is the header for the progress bar */
+/* It should be styled to match the other section headers */
+/* in your app, so it looks consistent */
+/* You can adjust the font size, weight, and color as needed */
+/* to fit your design */
+.progress-header {
+  font-size: 1.25rem;    /* same size as your other h2’s */
+  margin: 16px 0 8px;     /* space above & below */
+  font-weight: 600;       /* semi-bold to match other section titles */
+  color: #333;            /* or whatever your default heading color is */
+}
