@@ -1,146 +1,39 @@
-/*
- * style.css
- * @description
- * Provides global resets, base typography, layout container styling,
- * and form & checklist component styles for the Business Trip Checklist app.
- */
-
-/* --------------------------------------------------------------------------
- * Global Reset
- * --------------------------------------------------------------------------
- * Remove default margins/padding and ensure consistent box-sizing across browsers.
- */
+/* Resets and base typography */
 * {
-  margin: 0;              /* Remove default spacing around elements */
-  padding: 0;             /* Remove default padding inside elements */
-  box-sizing: border-box; /* Include border and padding in element's total width/height */
-}
-
-/* --------------------------------------------------------------------------
- * Base Typography & Body Styles
- * --------------------------------------------------------------------------
- * Define the base font, background, and center the main container using Flexbox.
- */
-body {
-  font-family: Arial, sans-serif;    /* Clean, readable sans-serif font */
-  background-color: #f6f6f6;         /* Light gray background for overall page */
-  padding: 30px;                      /* Space around the app container */
-
-  /* Center the .container horizontally */
-  display: flex;
-  justify-content: center;
-}
-
-/* --------------------------------------------------------------------------
- * Main Content Wrapper
- * --------------------------------------------------------------------------
- * Styles for the primary content container: background, spacing, shadows, and responsive width.
- */
-.container {
-  background-color: #ffffff;                        /* White background for contrast */
-  padding: 30px;                                    /* Inner spacing around content */
-  border-radius: 12px;                              /* Rounded corners for a modern look */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);         /* Subtle drop-shadow for depth */
-  width: 100%;                                      /* Allow full width up to max-width */
-  max-width: 700px;                                 /* Constrain width on large screens */
-}
-
-/* --------------------------------------------------------------------------
- * Utility Classes
- * --------------------------------------------------------------------------
- * Small helper classes for margins, padding, and hiding elements visually while keeping them accessible.
- */
-.visually-hidden {
-  position: absolute;  /* Remove element from document flow */
-  width: 1px;          /* Collapse width to 1px */
-  height: 1px;         /* Collapse height to 1px */
-  padding: 0;          /* No padding */
-  margin: -1px;        /* Hide off-screen */
-  overflow: hidden;    /* Hide overflow */
-  clip: rect(0, 0, 0, 0); /* Clip to zero area */
-  white-space: nowrap; /* Prevent text wrap */
-  border: 0;           /* Remove border */
-}
-
-/* --------------------------------------------------------------------------
- * Form Section Styles
- * --------------------------------------------------------------------------
- * Layout for form fields and grouping inputs into fieldsets with legends.
- */
-.form-section fieldset {
-  margin-bottom: 20px; /* Space between fieldsets */
-  border: 1px solid #ddd; /* Soft border for grouping */
-  border-radius: 8px;   /* Rounded corners on fieldset */
-  padding: 15px;        /* Inner padding */
-}
-
-.form-section legend {
-  font-weight: bold;    /* Stand out from fieldset border */
-  margin-bottom: 10px;  /* Space below legend */
-}
-
-.city-options,
-.activity-grid {
-  display: grid;        /* Use CSS Grid for layout of options */
-  gap: 10px;            /* Space between items */
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-}
-
-/* --------------------------------------------------------------------------
- * Button Styles
- * --------------------------------------------------------------------------
- * Primary buttons for actions like generating the checklist.
- */
-.btn {
-  padding: 10px 20px;     /* Comfortable click/tap area */
-  font-size: 1rem;        /* Match body font-size */
-  border: none;           /* Remove default border */
-  border-radius: 8px;     /* Rounded button corners */
-  cursor: pointer;        /* Indicate clickable */
-}
-
-.btn-primary {
-  background-color: #007bff; /* Brand or theme color */
-  color: #ffffff;            /* White text for contrast */
-}
-
-.btn-primary:hover {
-  background-color: #0056b3; /* Darker shade on hover */
-}
-
-/* --------------------------------------------------------------------------
- * Output Section Styles
- * --------------------------------------------------------------------------
- * Styles for weather, to-pack, and packed items containers.
- */
-.output-section h2 {
-  margin-top: 20px;        /* Space above each output heading */
-  font-size: 1.25rem;      /* Slightly larger than default text */
-}
-
-#weatherOutput {
-  min-height: 4em;         /* Reserve vertical space for loading/errors */
-  line-height: 1.4;        /* Improve readability of multi-line text */
-}
-
-.checklist-item {
-  display: flex;           /* Layout row: checkbox + label + delete button */
-  align-items: center;     /* Vertically center items */
-  margin-bottom: 8px;      /* Space between items */
-}
-
-.checklist-item input[type="checkbox"] {
-  margin-right: 10px;      /* Space between checkbox and label */
-}
-
-.delete-btn {
-  margin-left: auto;       /* Push delete button to far right */
-  background: none;        /* No background to look like an icon only */
-  border: none;            /* Remove default button border */
-  font-size: 1.1rem;       /* Slightly larger for easier tapping */
-  cursor: pointer;         /* Pointer cursor on hover */
-}
-
-.delete-btn:hover {
-  color: #c00;             /* Red color on hover to indicate deletion */
-}
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    /* Sets a clean, readable font */
+    font-family: Arial, sans-serif;
+  
+    /* Light gray background for contrast */
+    background-color: #f6f6f6;
+  
+    /* Adds space around the content */
+    padding: 30px;
+  
+    /* Centers content horizontally using Flexbox */
+    display: flex;
+    justify-content: center;
+  }
+  
+  .container {
+    /* White background for content contrast */
+    background-color: white;
+  
+    /* Padding inside the container */
+    padding: 30px;
+  
+    /* Rounded corners */
+    border-radius: 12px;
+  
+    /* Subtle shadow for depth */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+    /* Responsive width */
+    width: 100%;
+    max-width: 700px;
+  }

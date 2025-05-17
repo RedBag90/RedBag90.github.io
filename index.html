@@ -1,148 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- ================= Meta & SEO ================= -->
-  <!-- Character encoding: ensures proper display of Unicode characters -->
+  <!-- Meta tags for encoding and responsive design -->
   <meta charset="UTF-8" />
-  <!-- Viewport settings: responsive scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Document title: appears in browser tab and search engine results -->
+  <!-- Page title shown in the browser tab -->
   <title>Business Trip Checklist</title>
 
-  <!-- ================= Stylesheets ================= -->
-  <!-- Base styles (typography, global resets) -->
   <link rel="stylesheet" href="css/base.css" />
-  <!-- Layout grid definitions and page structure -->
   <link rel="stylesheet" href="css/layout.css" />
-  <!-- Components (buttons, form fields, cards) -->
   <link rel="stylesheet" href="css/components.css" />
+
 </head>
 <body>
 
-  <!-- ================= Page Wrapper ================= -->
-  <!-- A flex or grid container (defined in layout.css) to center and constrain content -->
+  <!-- Page container to center content -->
   <div class="container">
-
-    <!-- Primary heading: announces purpose of page -->
     <h1>Business Trip Checklist</h1>
 
-    <!-- ================= Main Content Grid ================= -->
-    <!-- Uses CSS Grid to place form and output side-by-side on larger screens -->
-    <main class="main-grid" role="main">
-
+    <main class="main-grid">
       <!-- ================= Form Section ================= -->
-      <!-- Contains controls for selecting destination and activities -->
-      <section class="form-section" aria-labelledby="form-heading">
-        <!-- Hidden heading for accessibility -->
-        <h2 id="form-heading" class="visually-hidden">Trip Settings</h2>
-        <form id="tripForm" aria-describedby="form-description">
-          <!-- Description for screen readers -->
-          <p id="form-description" class="visually-hidden">
-            Select your destination city and the activities you will undertake on your trip.
-          </p>
+      <section class="form-section">
+        <form id="tripForm">
 
-          <!-- -------- Destination City -------- -->
-          <fieldset>
-            <legend>Destination City</legend>
 
-            <!-- Predefined city options using radio buttons -->
-            <div class="city-options">
-              <label>
-                <input type="radio" name="cityOption" value="HAM" /> Hamburg
-              </label>
-              <label>
-                <input type="radio" name="cityOption" value="FRA" /> Frankfurt
-              </label>
-            </div>
-
-            <!-- Custom city input: appears when "Other" is selected -->
+          <!-- Destination City -->
+          <h2>Destination City:</h2>
+          <div class="city-options">
             <label>
-              <input type="radio" name="cityOption" value="custom" checked aria-controls="customCity" /> Other:
+              <input type="radio" name="cityOption" value="HAM" />
+              Hamburg
+           </label>
+            <label>
+              <input type="radio" name="cityOption" value="FRA" />
+              Frankfurt
             </label>
-            <input
-              type="text"
-              id="customCity"
-              name="customCity"
-              placeholder="Enter city name"
-              aria-label="Custom city name"
-            />
-          </fieldset>
+          </div>
+          <label>
+            <input type="radio" name="cityOption" value="custom" checked />
+            Other:
+          </label>
+          <input type="text" id="customCity" placeholder="Enter city name" />
 
-          <!-- -------- Activities -------- -->
-          <fieldset>
-            <legend>Activities</legend>
-            <div class="activity-grid">
-              <!-- Each checkbox value corresponds to a filter passed to the checklist generator -->
-              <label>
-                <input type="checkbox" value="pitching" class="activity" /> Pitching
-              </label>
-              <label>
-                <input type="checkbox" value="clientmeeting" class="activity" /> Client Meeting
-              </label>
-              <label>
-                <input type="checkbox" value="projectwork" class="activity" /> Project Work
-              </label>
-              <label>
-                <input type="checkbox" value="workshop" class="activity" /> Workshop
-              </label>
-              <label>
-                <input type="checkbox" value="networking" class="activity" /> Networking
-              </label>
-            </div>
-          </fieldset>
 
-          <!-- -------- Generate Button -------- -->
-          <!-- Triggers packing list regeneration and weather update -->
-          <button
-            type="button"
-            id="generateBtn"
-            class="btn btn-primary"
-            aria-live="polite"
-          >
-            Generate Checklist
-          </button>
+          <!-- Activities -->
+          <h2>Activities:</h2>
+          <div class="activity-grid">
+            <label><input type="checkbox" value="pitching" class="activity" /> Pitching</label>
+            <label><input type="checkbox" value="clientmeeting" class="activity" /> Client Meeting</label>
+            <label><input type="checkbox" value="projectwork" class="activity" /> Project Work</label>
+            <label><input type="checkbox" value="workshop" class="activity" /> Workshop</label>
+            <label><input type="checkbox" value="networking" class="activity" /> Networking</label>
+          </div>
+
+          <!-- Generate button -->
+          <br />
+          <button type="button" id="generateBtn">Generate Checklist</button>
         </form>
       </section>
 
       <!-- ================= Output Section ================= -->
-      <!-- Displays weather forecast and packing state -->
-      <section class="output-section" aria-labelledby="output-heading">
-        <!-- Hidden heading for clarity -->
-        <h2 id="output-heading" class="visually-hidden">Results</h2>
+      <section class="output-section">
+        <h2>Weather</h2>
+          <p id="weatherOutput"></p>
 
-        <!-- -------- Weather Display -------- -->
-        <div class="weather-container">
-          <h2>Weather</h2>
-          <!-- Placeholder paragraph updated by JS: shows loading, errors, or forecast -->
-          <p id="weatherOutput" role="status" aria-live="polite"></p>
-        </div>
+        <h2>To Pack</h2>
+          <div id="checklistOutput"></div>
 
-        <!-- -------- To Pack List -------- -->
-        <div class="checklist-container">
-          <h2>To Pack</h2>
-          <!-- JS will inject grouped checklist items here -->
-          <div id="checklistOutput" aria-live="polite"></div>
-        </div>
-
-        <!-- -------- Packed Items List -------- -->
-        <div class="checklist-container">
-          <h2>Packed Items</h2>
-          <!-- JS will inject items moved into packed state here -->
-          <div id="packedOutput" aria-live="polite"></div>
-        </div>
+        <h2>Packed Items</h2>
+          <div id="packedOutput"></div>
+     
       </section>
-
     </main>
   </div>
 
-  <!-- ================= Scripts ================= -->
-  <!-- Modular JS entry point: coordinates form, checklist, and weather logic -->
+  <!-- JavaScript for checklist and weather logic -->
+  <!-- Module-loaded app entry point -->
   <script type="module" src="js/main.js"></script>
+
 </body>
 </html>
-<!--
-  This HTML document serves as a template for a business trip checklist application.
-  It includes sections for selecting a destination, activities, and displaying weather
-  and packing lists. The layout is responsive and accessible, with ARIA roles and
-  properties to enhance usability for screen readers.

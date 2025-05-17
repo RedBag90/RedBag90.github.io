@@ -1,225 +1,109 @@
-/*
- * style.css
- * @description
- * Provides global resets, base typography, layout container styling,
- * and form & checklist component styles for the Business Trip Checklist app.
- */
-
-/* --------------------------------------------------------------------------
- * Global Reset
- * -------------------------------------------------------------------------- */
-* {
-  margin: 0;              /* Remove default spacing around elements */
-  padding: 0;             /* Remove default padding inside elements */
-  box-sizing: border-box; /* Include border and padding in element's total width/height */
-}
-
-/* --------------------------------------------------------------------------
- * Base Typography & Body Styles
- * -------------------------------------------------------------------------- */
-body {
-  font-family: Arial, sans-serif;    /* Clean, readable sans-serif font */
-  background-color: #f6f6f6;         /* Light gray background for overall page */
-  padding: 30px;                      /* Space around the app container */
-
-  /* Center the .container horizontally */
-  display: flex;
-  justify-content: center;
-}
-
-/* --------------------------------------------------------------------------
- * Main Content Wrapper
- * -------------------------------------------------------------------------- */
-.container {
-  background-color: #ffffff;                        /* White background for contrast */
-  padding: 30px;                                    /* Inner spacing around content */
-  border-radius: 12px;                              /* Rounded corners for a modern look */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);         /* Subtle drop-shadow for depth */
-  width: 100%;                                      /* Allow full width up to max-width */
-  max-width: 700px;                                 /* Constrain width on large screens */
-}
-
-/* --------------------------------------------------------------------------
- * Utility Classes
- * -------------------------------------------------------------------------- */
-.visually-hidden {
-  position: absolute;  /* Remove element from document flow */
-  width: 1px;          /* Collapse width to 1px */
-  height: 1px;         /* Collapse height to 1px */
-  padding: 0;          /* No padding */
-  margin: -1px;        /* Hide off-screen */
-  overflow: hidden;    /* Hide overflow */
-  clip: rect(0, 0, 0, 0); /* Clip to zero area */
-  white-space: nowrap; /* Prevent text wrap */
-  border: 0;           /* Remove border */
-}
-
-/* --------------------------------------------------------------------------
- * Form Section Styles (Fieldsets & Legends)
- * -------------------------------------------------------------------------- */
-.form-section fieldset {
-  margin-bottom: 20px;   /* Space between fieldsets */
-  border: 1px solid #ddd;/* Soft border for grouping */
-  border-radius: 8px;    /* Rounded corners on fieldset */
-  padding: 15px;         /* Inner padding */
-}
-
-.form-section legend {
-  font-weight: bold;     /* Make legend text stand out */
-  margin-bottom: 10px;   /* Space below legend */
-}
-
-.city-options,
-.activity-grid {
-  display: grid;         /* Use CSS Grid for option layouts */
-  gap: 10px;             /* Space between items */
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-}
-
-/* --------------------------------------------------------------------------
- * Form Layout: Input & Label Spacing
- * -------------------------------------------------------------------------- */
+/* Forms */
 form {
-  display: flex;          /* Stack form elements vertically */
-  flex-direction: column;
-}
+    display: flex;
+    flex-direction: column;
+  }
+  label,
+  select,
+  input {
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  input,
+  select {
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  /* Main button styling */
+  button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Checklist output spacing */
+  #checklistOutput {
+    margin-top: 5px;
+  }
+  
+  /* Checklist Groups */
+  .checklist-super-group {
+    margin-top: 2px;
+    padding: 2px 0;
+  }
+  .checklist-super-group h2 {
+    font-size: 12px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 2px;
+    padding-bottom: 5px;
+  }
+  .checklist-group {
+    margin-bottom: 2px;
+  }
+  .checklist-group h3 {
+    margin-bottom: 2px;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Individual checklist items */
+  .checklist-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .checklist-item .delete-btn {
+    margin-left: auto;
+  }
+  .checklist-item input {
+    margin-right: 10px;
+  }
+  
+  /* Delete (trash) button */
+  .delete-btn {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px;
+    line-height: 1;
+    display: flex;
 
-label,
-select,
-input {
-  margin-top: 10px;       /* Space above each control */
-  margin-bottom: 5px;     /* Space below each control */
-}
-
-input,
-select {
-  padding: 6px;           /* Inner spacing for click/tap comfort */
-  border-radius: 4px;     /* Slightly rounded corners */
-  border: 1px solid #ccc; /* Light gray border for contrast */
-  font-size: 14px;        /* Match input text size to body */
-}
-
-/* --------------------------------------------------------------------------
- * Button Styles
- * -------------------------------------------------------------------------- */
-.btn {
-  padding: 10px 20px;     /* Comfortable click/tap area */
-  font-size: 1rem;        /* Match body font-size */
-  border: none;           /* Remove default border */
-  border-radius: 8px;     /* Rounded button corners */
-  cursor: pointer;        /* Indicate clickable */
-}
-
-.btn-primary {
-  background-color: #007bff; /* Brand or theme color */
-  color: #ffffff;            /* White text for contrast */
-}
-
-.btn-primary:hover {
-  background-color: #0056b3; /* Darker shade on hover */
-}
-
-/* Main button element styling fallback */
-button {
-  margin-top: 15px;         /* Space above button */
-  padding: 10px;            /* Inner spacing */
-  background-color: #007bff;/* Primary blue */
-  color: white;             /* White text */
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3; /* Darker on hover */
-}
-
-/* --------------------------------------------------------------------------
- * Output Section Styles
- * -------------------------------------------------------------------------- */
-.output-section h2 {
-  margin-top: 20px;        /* Space above each output heading */
-  font-size: 1.25rem;      /* Slightly larger than default text */
-}
-
+  }
+  .delete-btn:hover {
+    color: red;
+  }
+  
+  /* Weather output */
+/* Smooth Fade-In Animation for Weather Output */
 #weatherOutput {
-  min-height: 4em;         /* Reserve vertical space for loading/errors */
-  line-height: 1.4;        /* Improve readability of multi-line text */
-  opacity: 1;              /* Default visible state */
-  transition: opacity 1s ease-in-out; /* Smooth fade-in/out */
-  margin-bottom: 20px;     /* Space below weather output */
-}
+    opacity: 1;
+    transition: opacity 1s ease-in-out;
+    margin-bottom: 20px; /* or however much space you’d like */
 
-.weather-loading {
-  opacity: 1;              /* Maintain opacity during loading */
-}
+  }
+  
+  .weather-loading {
+    opacity: 1;
+  }
 
-#checklistOutput {
-  margin-top: 5px;         /* Space above checklist container */
-}
-
-/* --------------------------------------------------------------------------
- * Checklist Groups & Items
- * -------------------------------------------------------------------------- */
-.checklist-super-group {
-  margin-top: 2px;         /* Small separation between super-groups */
-  padding: 2px 0;          /* Vertical padding */
-}
-
-.checklist-super-group h2 {
-  font-size: 12px;         /* Smaller heading for grouping */
-  border-bottom: 1px solid #ccc; /* Divider line */
-  margin-bottom: 2px;
-  padding-bottom: 5px;
-}
-
-.checklist-group {
-  margin-bottom: 2px;      /* Space between sub-groups */
-}
-
-.checklist-group h3 {
-  margin-bottom: 2px;
-  font-size: 16px;
-  border-bottom: 1px solid #eee;
-}
-
-.checklist-item {
-  display: flex;           /* Layout checkbox, label, delete icon */
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.checklist-item input {
-  margin-right: 10px;      /* Space between checkbox and label */
-}
-
-.checklist-item .delete-btn {
-  margin-left: auto;       /* Push delete button to far right */
-}
-
-.delete-btn {
-  margin-left: 8px;        /* Space from label/text */
-  background: none;        /* Icon-only button style */
-  border: none;
-  cursor: pointer;
-  font-size: 12px;         /* Small icon size */
-  padding: 2px;
-  line-height: 1;
-  display: flex;
-}
-
-.delete-btn:hover {
-  color: red;              /* Red on hover for deletion action */
-}
-
-/* --------------------------------------------------------------------------
- * Section Header Utility
- * -------------------------------------------------------------------------- */
-.section-header {
-  margin-top: 1em;
-  font-size: 1.2em;
-  font-weight: bold;
-  text-align: left;
-}
+  .section-header {
+    margin-top: 1em;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+  }
+  

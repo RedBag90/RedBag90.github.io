@@ -1,275 +1,220 @@
-/**
- * @file script.js
- * @description
- * Implements a dynamic business trip packing checklist. Allows users to generate,
- * view, and manage packing items based on trip parameters (activities, duration, etc.).
- * State persists across sessions using localStorage.
- */
-
 import { qs, ce } from './utils.js';
 
-// ===========================
-// Module Definitions
-// ===========================
-/**
- * Collection of item modules grouped by category.
- * Each module is an array of item definitions:
- * - name: display label for the item
- * - quantityPerDay (optional): if true, quantity scales with trip duration
- * - requiredForActivities (optional): filter items by selected activities
- */
+// Paste your full modules constant here
 export const modules = {
-  "Clothing and Essentials": [
-    { name: "Hygiene products" },
-    { name: "Toothbrush" },
-    { name: "Medicine" },
-    { name: "Headache tablet" },
-    { name: "Socks and underwear", quantityPerDay: true },
-    { name: "Shirt", quantityPerDay: true },
-    { name: "T-shirt", quantityPerDay: true },
-    { name: "Sweater" },
-    { name: "Jacket" },
-    { name: "Shoes" },
-    { name: "Pants" },
-    { name: "Formal Outfit", requiredForActivities: ["pitching", "networking", "clientmeeting"] }
-  ],
-  documents: [
-    { name: "Work ID" },
-    { name: "Passport/Personal ID" },
-    { name: "Travel Ticket" },
-    { name: "Meeting Agenda", requiredForActivities: ["clientmeeting", "workshop"] },
-    { name: "Business Cards" },
-    { name: "NDA Forms or Legal Paperwork" }
-  ],
-  "Work Essentials": [
-    { name: "Client Contact Info (Name, Phone, Email)" },
-    { name: "Credit Cards" }
-  ],
-  Electronics: [
-    { name: "Phone and Charger" },
-    { name: "Laptop and Charger" },
-    { name: "Tablet and Charger" },
-    { name: "Headphones" },
-    { name: "Presentation Clicker", requiredForActivities: ["pitching"] },
-    { name: "Moderation Material", requiredForActivities: ["workshop"] },
-    { name: "Notebook & Pen", requiredForActivities: ["workshop", "projectwork"] },
-    { name: "Power Bank and Cables" },
-    { name: "Portable Wi-Fi Hotspot" }
-  ],
-  Other: [
-    { name: "Keys" },
-    { name: "Wallet" }
-  ]
+    "Clothing and Essentials": [
+        { name: "Hygeen products"},
+        { name: "Toothbrush"},
+        { name: "Medicine" },
+        { name: "Headache tablet"},
+        { name: "Socks and underware", quantityPerDay: true },
+        { name: "Shirt", quantityPerDay: true },
+        { name: "Tshirt", quantityPerDay: true },
+        { name: "Sweater" },
+        { name: "Jacket" },
+        { name: "Shoes" },
+        { name: "Shirt", quantityPerDay: true },
+        { name: "Pants"},
+        { name: "Formal Outfit", requiredForActivities: ["pitching", "networking", "clientmeeting"] },
+    ],
+    documents: [
+        { name: "Work ID" },
+        { name: "Passport/Personal ID"},
+        { name: "Travel Ticket" },
+        { name: "Meeting Agenda", requiredForActivities: ["clientmeeting", "workshop"] },
+        { name: "Business Cards" },
+        { name: "NDA Forms or Legal Paperwork" }
+    ],
+    "Work Essentials": [
+        { name: "Client Contact Info (Name, Phone, Email)" },
+        { name: "Credit Cards" }
+    ],
+    Electronics: [
+        { name: "Phone and Charger" },
+        { name: "Laptop and Charger" },
+        { name: "Tablet and Charger" },
+        { name: "Headphones" },
+        { name: "Presentation Clicker", requiredForActivities: ["pitching"] },
+        { name: "Moderation Material", requiredForActivities: ["workshop"] },
+        { name: "Notebook & Pen", requiredForActivities: ["workshop", "projectwork"] },
+        { name: "Power Bank and Cables" },
+        { name: "Portable Wi-Fi Hotspot" }
+    ],
+    Other: [
+        { name: "Keys" },
+        { name: "Wallet" }
+    ]
 };
 
-// ===========================
-// Checklist Grouping
-// ===========================
-/**
- * Defines the order and grouping of modules for rendering sections.
- * Keys refer to properties in `modules`. Sections are shown in this sequence.
- */
+// Define grouping of modules into checklist sections
 const checklistGroups = {
-  "Documents & Work Essentials": ["documents", "Work Essentials"],
-  "Electronics":                   ["Electronics"],
-  "Clothing":                      ["Clothing and Essentials"],
-  "Other":                         ["Other"]
-};
+    "Documents & Work Essentials": ["documents", "Work Essentials"],
+    "Electronics":                   ["Electronics"],
+    "Clothing":                      ["Clothing and Essentials"],
+    "Other":                         ["Other"]
+  };
+  
 
-// ===========================
-// DOM References
-// ===========================
-// Container elements for "To Pack" and "Packed" lists
-const toPackEl   = qs('#checklistOutput');
-const packedEl   = qs('#packedOutput');
+// DOM containers
+const toPackEl = qs('#checklistOutput');
+const packedEl = qs('#packedOutput');
 
-// ===========================
-// In-Memory State
-// ===========================
-// Arrays holding items pending packing and already packed
+// In-memory state arrays
 let toPackList = [];
 let packedList = [];
 
-// ===========================
-// Persistence Helpers
-// ===========================
-/**
- * Saves current `toPackList` and `packedList` into browser localStorage.
- */
+// Save both lists to localStorage
 function saveState() {
   localStorage.setItem('trip_toPack', JSON.stringify(toPackList));
   localStorage.setItem('trip_packed', JSON.stringify(packedList));
 }
 
-/**
- * Loads saved lists from localStorage into memory.
- * If no data exists, initializes as empty arrays.
- */
+// Load saved lists (if any)
 function loadState() {
   toPackList = JSON.parse(localStorage.getItem('trip_toPack') || '[]');
   packedList  = JSON.parse(localStorage.getItem('trip_packed') || '[]');
 }
 
-// ===========================
-// Rendering Logic
-// ===========================
-/**
- * Clears and renders both "To Pack" and "Packed" lists.
- * Items are grouped into sections according to `checklistGroups`.
- */
+// Render both "To Pack" and "Packed" lists
 function renderChecklists() {
-  // Reset UI
-  toPackEl.innerHTML = '';
-  packedEl.innerHTML = '';
-
-  // Loop through each configured section
-  Object.entries(checklistGroups).forEach(([sectionName, moduleKeys]) => {
-    // Render "To Pack" section only if there are items in this group
-    const hasToPack = toPackList.some(item => 
-      moduleKeys
-        .flatMap(key => modules[key].map(opt => opt.name))
-        .includes(item.name)
-    );
-    if (hasToPack) {
-      // Section header
-      const header = ce('h3', { className: 'section-header', textContent: sectionName });
-      toPackEl.append(header);
-
-      // Render each item row
-      moduleKeys.forEach(key => {
-        modules[key].forEach(def => {
-          if (toPackList.find(item => item.name === def.name)) {
-            toPackEl.append(buildRow(def.name, false));
-          }
+    toPackEl.innerHTML = '';
+    packedEl.innerHTML = '';
+  
+    // iterate each section in order
+    Object.entries(checklistGroups).forEach(([sectionName, moduleKeys]) => {
+      // --- TO PACK column ---
+      // only render a header if there's at least one item in this group
+      if (toPackList.some(i => {
+        // check if its module is in this group
+        return moduleKeys
+          .flatMap(key => modules[key].map(m => m.name))
+          .includes(i.name);
+      })) {
+        const hdr = ce('h3', {
+          className: 'section-header',
+          textContent: sectionName
         });
-      });
-    }
-
-    // Render "Packed" section only if there are items in this group
-    const hasPacked = packedList.some(item => 
-      moduleKeys
-        .flatMap(key => modules[key].map(opt => opt.name))
-        .includes(item.name)
-    );
-    if (hasPacked) {
-      const header = ce('h3', { className: 'section-header', textContent: sectionName });
-      packedEl.append(header);
-      moduleKeys.forEach(key => {
-        modules[key].forEach(def => {
-          if (packedList.find(item => item.name === def.name)) {
-            packedEl.append(buildRow(def.name, true));
-          }
+        toPackEl.append(hdr);
+  
+        moduleKeys.forEach(key => {
+          modules[key].forEach(def => {
+            if (toPackList.find(i => i.name === def.name)) {
+              const row = buildRow(def.name, false);
+              toPackEl.append(row);
+            }
+          });
         });
-      });
-    }
-  });
-}
+      }
+  
+      // --- PACKED column ---
+      if (packedList.some(i => {
+        return moduleKeys
+          .flatMap(key => modules[key].map(m => m.name))
+          .includes(i.name);
+      })) {
+        const hdr = ce('h3', {
+          className: 'section-header',
+          textContent: sectionName
+        });
+        packedEl.append(hdr);
+  
+        moduleKeys.forEach(key => {
+          modules[key].forEach(def => {
+            if (packedList.find(i => i.name === def.name)) {
+              const row = buildRow(def.name, true);
+              packedEl.append(row);
+            }
+          });
+        });
+      }
+    });
+  }
+  
+  // helper to DRY up row-creation
+  function buildRow(name, isPacked) {
+    const row = ce('div', { className: 'checklist-item' });
+    const id  = (isPacked ? 'p-' : 't-') + name.toLowerCase().replace(/\s+/g,'-');
+  
+    const checkbox = ce('input', {
+      type:    'checkbox',
+      id:      id,
+      checked: isPacked
+    });
+    checkbox.addEventListener(
+      'change',
+      () => isPacked ? moveToToPack(name) : moveToPacked(name)
+    );
+  
+    const label = ce('label', {
+      htmlFor:      id,
+      textContent:  name
+    });
+  
+    const delBtn = ce('button', {
+      className:   'delete-btn',
+      textContent: '🗑'
+    });
+    delBtn.addEventListener('click', () => deleteItem(name, isPacked));
+  
+    row.append(checkbox, label, delBtn);
+    return row;
+  }
+  
 
-/**
- * Creates a checklist row element for a given item.
- * @param {string} name - Display name of the item.
- * @param {boolean} isPacked - Flag indicating if the row is in "Packed" column.
- * @returns {HTMLElement} - DOM node representing the checklist row.
- */
-function buildRow(name, isPacked) {
-  const row = ce('div', { className: 'checklist-item' });
-  // Generate a unique ID (prefix with 'p-' or 't-')
-  const id  = (isPacked ? 'p-' : 't-') + name.toLowerCase().replace(/\s+/g, '-');
-
-  // Checkbox input
-  const checkbox = ce('input', {
-    type: 'checkbox',
-    id: id,
-    checked: isPacked
-  });
-  // Toggle packing state on change
-  checkbox.addEventListener('change', () => 
-    isPacked ? moveToToPack(name) : moveToPacked(name)
-  );
-
-  // Label element
-  const label = ce('label', {
-    htmlFor: id,
-    textContent: name
-  });
-
-  // Delete button (trash icon)
-  const delBtn = ce('button', { className: 'delete-btn', textContent: '🗑' });
-  delBtn.addEventListener('click', () => deleteItem(name, isPacked));
-
-  // Append elements in order
-  row.append(checkbox, label, delBtn);
-  return row;
-}
-
-// ===========================
-// State Transition Handlers
-// ===========================
-/**
- * Moves an item from "To Pack" to "Packed" state.
- * @param {string} name - Name of the item to move.
- */
+// Move an item from "To Pack" → "Packed"
 function moveToPacked(name) {
-  toPackList = toPackList.filter(item => item.name !== name);
+  toPackList = toPackList.filter(i => i.name !== name);
   packedList.push({ name, checked: true });
   saveState();
   renderChecklists();
 }
 
-/**
- * Moves an item from "Packed" back to "To Pack".
- * @param {string} name - Name of the item to move.
- */
+// Move an item from "Packed" → "To Pack"
 function moveToToPack(name) {
-  packedList = packedList.filter(item => item.name !== name);
+  packedList = packedList.filter(i => i.name !== name);
   toPackList.push({ name, checked: false });
   saveState();
   renderChecklists();
 }
 
-/**
- * Removes an item permanently from either list.
- * @param {string} name
- * @param {boolean} isPacked - True if deleting from "Packed" list.
- */
+// Delete an item from either list
 function deleteItem(name, isPacked) {
-  if (isPacked) {
-    packedList = packedList.filter(item => item.name !== name);
-  } else {
-    toPackList = toPackList.filter(item => item.name !== name);
-  }
+  if (isPacked) packedList = packedList.filter(i => i.name !== name);
+  else         toPackList = toPackList.filter(i => i.name !== name);
   saveState();
   renderChecklists();
 }
 
-// ===========================
-// Checklist Generation
-// ===========================
 /**
- * Builds a fresh checklist based on user-selected filters (activities, etc.).
- * Clears any saved state and populates `toPackList`.
- * @param {{ activities?: string[] }} formData - Filters from the form.
+ * Generate a fresh checklist from modules (ignores saved state)
+ * @param {{}} formData  — your existing filter inputs (tripType, duration, role, activities)
  */
 export function generateChecklist(formData) {
+  // Destructure the filters from the form data
   const { activities = [] } = formData;
+
+  // reset both lists
   toPackList = [];
   packedList = [];
 
-  // Loop through each section to include relevant items
+  // for each section in your grouping…
   Object.entries(checklistGroups).forEach(([sectionName, moduleKeys]) => {
-    // Gather all items for this section
+    // 1) Gather all items in this group…
     const filteredItems = moduleKeys
       .flatMap(key => modules[key])
       .filter(item => {
-        // If item has activity requirements, check for matches
+
+        // Enforce at least one matching activity if required
         if (item.requiredForActivities) {
-          const matches = activities.some(act => item.requiredForActivities.includes(act));
-          return matches;
+          const ok = activities.some(act =>
+            item.requiredForActivities.includes(act)
+          );
+          if (!ok) return false;
         }
-        return true;
+        return true; // otherwise it’s included
       });
 
-    // If any items remain after filtering, add section header + items
+    // 2) Only if there are items, push the section header + its items
     if (filteredItems.length) {
       toPackList.push({ isHeader: true, name: sectionName });
       filteredItems.forEach(item =>
@@ -282,16 +227,14 @@ export function generateChecklist(formData) {
   renderChecklists();
 }
 
-// ===========================
-// Initialization
-// ===========================
+  
+
 /**
- * Entry point on page load. Restores saved state or generates new checklist.
- * @param {{ activities?: string[] }} formData - Initial form filters.
+ * Initialize on page load: rehydrate or generate fresh
+ * @param {{}} formData
  */
 export function initChecklist(formData) {
   loadState();
-  // If saved items exist, render them; otherwise generate fresh list
   if (toPackList.length || packedList.length) {
     renderChecklists();
   } else {
