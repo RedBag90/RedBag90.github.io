@@ -12,7 +12,10 @@
 <body>
   <header class="site-header" role="banner">
     <div class="container">
-      <h1>Business Trip Checklist</h1>
+      <div class="header-row">
+        <h1>Business Trip Checklist</h1>
+        <span id="templateBadge" class="template-badge hidden" aria-live="polite"></span>
+      </div>
       <p class="tagline">Plan, pack, and go — with weather-aware packing suggestions.</p>
     </div>
   </header>
@@ -22,6 +25,18 @@
       <div class="panel" aria-live="polite">
         <h2 id="trip-form-heading">Trip Settings</h2>
         <form id="tripForm" novalidate>
+          <div class="template-toolbar" role="group" aria-labelledby="templateToolbarLabel">
+            <span id="templateToolbarLabel" class="template-toolbar__label">Packing Templates</span>
+            <label class="sr-only" for="templatePicker">Choose a template</label>
+            <select id="templatePicker" name="templatePicker" aria-describedby="templateToolbarLabel">
+              <option value="">Select template</option>
+            </select>
+            <div class="template-toolbar__actions">
+              <button type="button" id="applyTemplateBtn" class="btn btn-secondary">Apply</button>
+              <button type="button" id="saveTemplateBtn" class="btn btn-outline">Save current as template</button>
+              <button type="button" id="deleteTemplateBtn" class="btn btn-outline btn-danger">Delete</button>
+            </div>
+          </div>
           <fieldset>
             <legend>Destination</legend>
             <div class="form-field">
@@ -76,6 +91,10 @@
       </div>
     </section>
 
+    <section class="panel bag-summary-panel" aria-label="Bag summary">
+      <div class="bag-summary" id="bagSummary"></div>
+    </section>
+
     <section class="lists-grid" aria-label="Checklist items">
       <div class="panel">
         <header class="panel-header">
@@ -112,6 +131,39 @@
       <menu class="dialog-actions">
         <button value="cancel" class="btn btn-secondary">Cancel</button>
         <button value="confirm" class="btn btn-primary">Add Item</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="applyTemplateModal" class="modal-apply-template" aria-labelledby="applyTemplateTitle" aria-describedby="templateDiffDescription">
+    <form method="dialog" class="dialog-form">
+      <h2 id="applyTemplateTitle">Apply Template</h2>
+      <p id="templateDiffDescription">Review changes before applying <strong id="templateModalName"></strong>.</p>
+      <ul class="template-diff-list">
+        <li><span class="diff-label">Will add</span><span id="templateDiffAdd" class="diff-value">0</span></li>
+        <li><span class="diff-label">Will replace</span><span id="templateDiffReplace" class="diff-value">0</span></li>
+        <li><span class="diff-label">Already present</span><span id="templateDiffSkip" class="diff-value">0</span></li>
+      </ul>
+      <menu class="dialog-actions">
+        <button value="cancel" class="btn btn-secondary">Cancel</button>
+        <button value="merge" class="btn btn-primary btn-merge">Merge</button>
+        <button value="replace" class="btn btn-outline btn-replace">Replace</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <dialog id="saveTemplateDialog" class="modal-save-template" aria-labelledby="saveTemplateTitle">
+    <form method="dialog" class="dialog-form">
+      <h2 id="saveTemplateTitle">Save Template</h2>
+      <label for="templateName">Template name</label>
+      <input id="templateName" name="templateName" type="text" required />
+      <label class="checkbox-inline">
+        <input type="checkbox" id="includeWeatherItems" />
+        Include weather items
+      </label>
+      <menu class="dialog-actions">
+        <button value="cancel" class="btn btn-secondary">Cancel</button>
+        <button value="confirm" class="btn btn-primary">Save</button>
       </menu>
     </form>
   </dialog>

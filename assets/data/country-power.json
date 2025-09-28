@@ -1,0 +1,12 @@
+{
+  "DE": { "plugs": ["C", "F"], "voltage": 230, "hz": 50 },
+  "US": { "plugs": ["A", "B"], "voltage": 120, "hz": 60 },
+  "GB": { "plugs": ["G"], "voltage": 230, "hz": 50 },
+  "AU": { "plugs": ["I"], "voltage": 230, "hz": 50 },
+  "JP": { "plugs": ["A", "B"], "voltage": 100, "hz": 50 },
+  "IN": { "plugs": ["C", "D", "M"], "voltage": 230, "hz": 50 },
+  "CN": { "plugs": ["A", "C", "I"], "voltage": 220, "hz": 50 },
+  "ZA": { "plugs": ["C", "D", "M", "N"], "voltage": 230, "hz": 50 },
+  "BR": { "plugs": ["C", "N"], "voltage": 127, "hz": 60 },
+  "CA": { "plugs": ["A", "B"], "voltage": 120, "hz": 60 }
+}

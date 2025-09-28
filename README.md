@@ -83,6 +83,8 @@ A GitHub Actions workflow (`.github/workflows/deploy.yml`) runs linting/tests an
   1. Select “Berlin”, duration `5`, enable “Pitching”.
   2. Wait for weather to load, then click `Generate Checklist`.
   3. Add a custom item, toggle a few entries, export to PDF, and copy the share link to verify round-trip loading in a new tab.
+- **Packing templates**: Choose a built-in or saved template from the toolbar (Merge keeps existing items; Replace swaps out everything except custom/weather entries). Save your current list as a template (optionally including weather items); templates persist in `localStorage` and are capped at 500 entries.
+- **Bags & zones**: Assign each item to Carry-on, Checked, Personal, or Work zones; the bag summary bar shows packed progress per bag, and exports are grouped with per-bag subtotals. Bag assignments are shared in URLs and preserved in templates.
 
 ## ♿ Accessibility Considerations
 

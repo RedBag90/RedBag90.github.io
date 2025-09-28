@@ -3,7 +3,6 @@
  */
 
 const STORAGE_KEY = 'business-trip-checklist-state';
-const TEMPLATE_STORAGE_KEY = 'templates.v1';
 
 export const CHECKLIST_TEMPLATE = {
   clothing: ['Shirt', 'Trousers', 'Jacket'],
@@ -32,9 +31,7 @@ const SHARE_KEYS = {
     group: 'g',
     label: 'l',
     checked: 'k',
-    source: 's',
-    bag: 'b',
-    quantity: 'q'
+    source: 's'
   },
   weather: {
     summary: 'y',
@@ -93,8 +90,8 @@ export function mapDurationToItems(days) {
   const tech = duration > 3 ? ['Extension Cord'] : [];
   const clothingItems = [socks, shirts, outer];
   return [
-    ...clothingItems.map(label => ({ group: 'clothing', label, source: 'duration', bag: 'carryOn' })),
-    ...tech.map(label => ({ group: 'tech', label, source: 'duration', bag: 'carryOn' }))
+    ...clothingItems.map(label => ({ group: 'clothing', label, source: 'duration' })),
+    ...tech.map(label => ({ group: 'tech', label, source: 'duration' }))
   ];
 }
 
@@ -238,9 +235,7 @@ function compressItem(item) {
     [SHARE_KEYS.item.group]: item.group,
     [SHARE_KEYS.item.label]: item.label,
     [SHARE_KEYS.item.checked]: item.checked ? 1 : 0,
-    [SHARE_KEYS.item.source]: item.source,
-    [SHARE_KEYS.item.bag]: item.bag || null,
-    [SHARE_KEYS.item.quantity]: item.quantity ?? null
+    [SHARE_KEYS.item.source]: item.source
   };
 }
 
@@ -276,9 +271,7 @@ function expandPayload(payload) {
         group: item[SHARE_KEYS.item.group],
         label: item[SHARE_KEYS.item.label],
         checked: Boolean(item[SHARE_KEYS.item.checked]),
-        source: item[SHARE_KEYS.item.source] ?? 'base',
-        bag: item[SHARE_KEYS.item.bag] ?? null,
-        quantity: nullableNumber(item[SHARE_KEYS.item.quantity]) ?? undefined
+        source: item[SHARE_KEYS.item.source] ?? 'base'
       }))
       .filter(item => item.id && item.label && item.group),
     weather: weatherPayload
@@ -356,7 +349,7 @@ export function showToast(message, variant = 'info') {
     document.body.append(toast);
   }
   toast.textContent = message;
-  toast.classList.remove('toast--success', 'toast--error', 'toast-merge');
+  toast.classList.remove('toast--success', 'toast--error');
   if (variant === 'success') {
     toast.classList.add('toast--success');
   }
@@ -368,89 +361,4 @@ export function showToast(message, variant = 'info') {
   showToast.timer = window.setTimeout(() => {
     toast.classList.remove('toast-visible');
   }, 2500);
-}
-
-export function migrateItemsAddBag(items = [], defaultBag = 'carryOn') {
-  if (!Array.isArray(items) || !items.length) {
-    return [];
-  }
-  return items.map(item => {
-    if (!item) {
-      return item;
-    }
-    const normalized = normalizeBagValue(item.bag);
-    if (normalized) {
-      return { ...item, bag: normalized };
-    }
-    return { ...item, bag: defaultBag };
-  });
-}
-
-export function normalizeBagValue(value) {
-  if (!value) {
-    return null;
-  }
-  const normalized = value.toString().trim().toLowerCase().replace(/[^a-z]/g, '');
-  switch (normalized) {
-    case 'carryon':
-    case 'carry':
-    case 'handluggage':
-      return 'carryOn';
-    case 'checked':
-    case 'checkedbag':
-      return 'checked';
-    case 'personal':
-    case 'personalitem':
-      return 'personal';
-    case 'work':
-    case 'briefcase':
-      return 'work';
-    default:
-      return null;
-  }
-}
-
-export function normalizeLabel(value) {
-  if (!value) {
-    return '';
-  }
-  return value
-    .toString()
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
-}
-
-export function makeItemKey(label, bag) {
-  const normalizedLabel = normalizeLabel(label);
-  const normalizedBag = normalizeBagValue(bag) || 'carryOn';
-  return `${normalizedLabel}|${normalizedBag}`;
-}
-
-export function loadTemplates() {
-  try {
-    const raw = localStorage.getItem(TEMPLATE_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (err) {
-    console.warn('Unable to load templates', err);
-    return [];
-  }
-}
-
-export function saveTemplates(templates) {
-  try {
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates ?? []));
-  } catch (err) {
-    console.warn('Unable to save templates', err);
-  }
-}
-
-export function generateId(prefix = 'id') {
-  const random = Math.random().toString(36).slice(2, 8);
-  const timestamp = Date.now().toString(36);
-  return `${prefix}-${timestamp}-${random}`;
 }

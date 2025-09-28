@@ -69,7 +69,7 @@
 
 .checklist-item {
   display: grid;
-  grid-template-columns: min-content 1fr auto min-content;
+  grid-template-columns: min-content 1fr min-content;
   align-items: center;
   gap: 0.75rem;
   padding: 0.65rem 0.75rem;

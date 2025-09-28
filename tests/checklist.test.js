@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   initChecklist,
   addCustomItem,
@@ -8,7 +8,13 @@ import {
   reconcileWeatherItems,
   generateChecklist,
   updateTrip,
-  renderChecklistForExport
+  renderChecklistForExport,
+  applyTemplate,
+  diffTemplate,
+  getBuiltInTemplates,
+  moveItemToBag,
+  getBagSummary,
+  ensureUniqueOrMerge
 } from '../src/checklist.js';
 
 const mountMarkup = `
@@ -16,6 +22,7 @@ const mountMarkup = `
   <div id="packedOutput"></div>
   <div id="progressBar"></div>
   <div id="progressText"></div>
+  <div id="bagSummary"></div>
 `;
 
 describe('checklist module', () => {
@@ -86,5 +93,72 @@ describe('checklist module', () => {
       items: getAppState().items.filter(item => item.source === 'weather')
     });
     expect(exportDoc.querySelectorAll('.export-checklist-list li').length).toBeGreaterThan(1);
+  });
+
+  it('computes template diff and applies merge without duplicates', () => {
+    const template = {
+      id: 'test:merge',
+      name: 'Merge Template',
+      items: [
+        { label: 'Travel Mug', group: 'other' },
+        { label: 'Notebook & Pens', group: 'documents' }
+      ]
+    };
+    const diff = diffTemplate(template);
+    expect(diff.willAdd).toBeGreaterThan(0);
+    const result = applyTemplate(template, 'merge');
+    expect(result.added).toBe(diff.willAdd);
+    const state = getAppState();
+    const mugCount = state.items.filter(item => item.label === 'Travel Mug').length;
+    expect(mugCount).toBe(1);
+  });
+
+  it('replace apply is idempotent', () => {
+    const template = getBuiltInTemplates()[0];
+    applyTemplate(template, 'replace');
+    const firstState = JSON.parse(JSON.stringify(getAppState().items));
+    const result = applyTemplate(template, 'replace');
+    const secondState = JSON.parse(JSON.stringify(getAppState().items));
+    expect(result.replaced).toBeGreaterThan(0);
+    expect(secondState).toEqual(firstState);
+  });
+
+  it('updates bag summary when moving items', () => {
+    const state = getAppState();
+    const target = state.items.find(item => item.source !== 'weather') || state.items[0];
+    moveItemToBag(target.id, 'checked');
+    const summary = getBagSummary();
+    expect(summary.checked.count).toBeGreaterThan(0);
+  });
+
+  it('export groups checklist by bag with counts', () => {
+    const state = getAppState();
+    const target = state.items.find(item => item.source !== 'weather') || state.items[0];
+    moveItemToBag(target.id, 'work');
+    const exportDoc = renderChecklistForExport(getAppState());
+    const headings = Array.from(exportDoc.querySelectorAll('.export-bag-section > h3')).map(node => node.textContent || '');
+    expect(headings.some(text => text.includes('Work'))).toBe(true);
+  });
+
+  it('merges duplicates case-insensitively when confirmed', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const first = ensureUniqueOrMerge({ label: 'HDMI Cable', group: 'tech', source: 'custom', bag: 'carryOn' });
+    expect(first.status).toBe('added');
+    const second = ensureUniqueOrMerge({ label: 'hdmi   cable', group: 'tech', source: 'custom', bag: 'carryOn' });
+    expect(second.status).toBe('merged');
+    const item = getAppState().items.find(entry => entry.label === 'HDMI Cable');
+    expect(item?.quantity).toBe(2);
+    confirmSpy.mockRestore();
+  });
+
+  it('cancels duplicate merge when declined', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const result = ensureUniqueOrMerge({ label: 'Travel Adapter', group: 'tech', source: 'custom', bag: 'carryOn' });
+    expect(result.status).toBe('added');
+    const cancel = ensureUniqueOrMerge({ label: 'travel adapter', group: 'tech', source: 'custom', bag: 'carryOn' });
+    expect(cancel.status).toBe('cancelled');
+    const item = getAppState().items.find(entry => entry.label === 'Travel Adapter');
+    expect(item?.quantity ?? 1).toBe(1);
+    confirmSpy.mockRestore();
   });
 });

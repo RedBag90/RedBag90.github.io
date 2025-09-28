@@ -4,11 +4,7 @@ import {
   base64UrlEncode,
   base64UrlDecode,
   serializeStateToURL,
-  deserializeStateFromURL,
-  loadTemplates,
-  saveTemplates,
-  normalizeLabel,
-  makeItemKey
+  deserializeStateFromURL
 } from '../src/utils.js';
 
 const baseState = {
@@ -20,8 +16,8 @@ const baseState = {
     generatedAt: '2024-05-01T08:00:00.000Z'
   },
   items: [
-    { id: 'base-clothing-shirt', group: 'clothing', label: 'Shirt', checked: false, source: 'base', bag: 'carryOn' },
-    { id: 'custom-other-business-cards', group: 'other', label: 'Business Cards', checked: true, source: 'custom', bag: 'carryOn' }
+    { id: 'base-clothing-shirt', group: 'clothing', label: 'Shirt', checked: false, source: 'base' },
+    { id: 'custom-other-business-cards', group: 'other', label: 'Business Cards', checked: true, source: 'custom' }
   ],
   weather: {
     summary: 'Rain',
@@ -102,42 +98,5 @@ describe('share serialization', () => {
   it('returns null for invalid payloads', () => {
     const result = deserializeStateFromURL('?s=invalidpayload');
     expect(result).toBeNull();
-  });
-
-  it('preserves bag assignments on round-trip', () => {
-    const state = {
-      ...baseState,
-      items: [
-        { id: 'item-1', group: 'tech', label: 'Laptop', checked: false, source: 'base', bag: 'carryOn' },
-        { id: 'item-2', group: 'clothing', label: 'Suit', checked: true, source: 'custom', bag: 'checked' }
-      ]
-    };
-    const url = serializeStateToURL(state, 'https://example.com');
-    const parsed = deserializeStateFromURL(new URL(url).search);
-    expect(parsed.items[0].bag).toBe('carryOn');
-    expect(parsed.items[1].bag).toBe('checked');
-  });
-});
-
-describe('template persistence', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
-  it('saves and loads templates from storage', () => {
-    const templates = [{ id: 'tpl-1', name: 'Test Template', items: [] }];
-    saveTemplates(templates);
-    expect(loadTemplates()).toEqual(templates);
-  });
-});
-
-describe('label normalization helpers', () => {
-  it('normalizes labels consistently', () => {
-    expect(normalizeLabel('  HDMI   Cable ')).toBe('hdmi cable');
-  });
-
-  it('creates item keys with bag defaults', () => {
-    expect(makeItemKey('Travel Mug', undefined)).toBe('travel mug|carryOn');
-    expect(makeItemKey('Travel Mug', 'work')).toBe('travel mug|work');
   });
 });
