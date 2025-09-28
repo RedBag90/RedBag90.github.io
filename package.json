@@ -1,0 +1,24 @@
+{
+  "name": "business-trip-checklist",
+  "version": "0.1.0",
+  "description": "Business Trip Checklist Web App",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest",
+    "lint": "eslint src tests",
+    "format": "prettier --check .",
+    "build": "npm run lint && npm run test"
+  },
+  "keywords": ["checklist", "business", "travel"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jsdom": "^24.0.0",
+    "prettier": "^3.2.5",
+    "vite": "^5.1.0",
+    "vitest": "^1.5.0"
+  }
+}
