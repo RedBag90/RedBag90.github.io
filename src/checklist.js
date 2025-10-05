@@ -30,11 +30,26 @@ const CATEGORY_LABELS = {
 
 const CATEGORY_SEQUENCE = ['documents', 'tech', 'clothing', 'other'];
 
+const CATEGORY_ICONS = {
+  documents: '📂',
+  tech: '💼',
+  clothing: '🧳',
+  other: '✨'
+};
+
 const BAG_LABELS = {
   carryOn: 'Carry-on',
   checked: 'Checked Bag',
   personal: 'Personal Item',
   work: 'Work Bag'
+};
+
+const ACTIVITY_LABELS = {
+  pitching: 'Pitching',
+  clientmeeting: 'Client Meeting',
+  projectwork: 'Project Work',
+  workshop: 'Workshop',
+  networking: 'Networking'
 };
 
 const ACTIVITY_ADD_ONS = {
@@ -576,75 +591,33 @@ function collectExportItems(state) {
   return dedupeItems(items);
 }
 
+const exportNumberFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 1,
+  minimumFractionDigits: 0
+});
+
+const WEATHER_GLYPHS = {
+  sunny: '☀',
+  cloudy: '☁',
+  rainy: '☂',
+  storm: '⚡',
+  snow: '❄',
+  default: '⛅'
+};
+
+const PRECIP_BAR_MAX_MM = 10;
+
 export function renderChecklistForExport(state = appState) {
   const exportState = cloneState(state);
   const exportItems = collectExportItems(exportState);
 
   const doc = ce('article', { className: 'export-document' });
-  const header = ce('header', { className: 'export-header' });
-  header.append(ce('h1', { textContent: 'Business Trip Checklist' }));
-  header.append(
-    ce('p', {
-      className: 'export-meta',
-      textContent: `Generated ${formatDateTime(new Date(exportState.trip.generatedAt || Date.now()))}`
-    })
-  );
-  doc.append(header);
 
-  const tripInfo = ce('section', { className: 'export-section' });
-  tripInfo.append(ce('h2', { textContent: 'Trip Details' }));
-  const infoList = ce('ul', { className: 'export-list' });
-  infoList.append(ce('li', { textContent: `City: ${exportState.trip.city || '—'}` }));
-  if (exportState.trip.country) {
-    infoList.append(ce('li', { textContent: `Country: ${exportState.trip.country}` }));
-  }
-  infoList.append(ce('li', { textContent: `Duration: ${exportState.trip.durationDays} day(s)` }));
-  infoList.append(
-    ce('li', {
-      textContent: `Activities: ${exportState.trip.activities?.length ? exportState.trip.activities.join(', ') : '—'}`
-    })
-  );
-  infoList.append(ce('li', { textContent: `Exported: ${formatDateTime()}` }));
-  tripInfo.append(infoList);
-  doc.append(tripInfo);
-
-  if (exportState.weather) {
-    const weatherSection = ce('section', { className: 'export-section' });
-    weatherSection.append(ce('h2', { textContent: 'Weather Summary' }));
-    const weatherList = ce('ul', { className: 'export-list' });
-    weatherList.append(
-      ce('li', {
-        textContent: `Summary: ${exportState.weather.summary || '—'}`
-      })
-    );
-    if (exportState.weather.tempC !== null && exportState.weather.tempC !== undefined) {
-      weatherList.append(ce('li', { textContent: `Current Temp: ${exportState.weather.tempC}°C` }));
-    }
-    if (exportState.weather.minC !== null || exportState.weather.maxC !== null) {
-      weatherList.append(
-        ce('li', {
-          textContent: `Tomorrow Range: ${exportState.weather.minC ?? '—'}°C / ${exportState.weather.maxC ?? '—'}°C`
-        })
-      );
-    }
-    if (exportState.weather.precipitation !== null && exportState.weather.precipitation !== undefined) {
-      weatherList.append(
-        ce('li', {
-          textContent: `Precipitation: ${exportState.weather.precipitation} mm`
-        })
-      );
-    }
-    weatherList.append(
-      ce('li', {
-        textContent: `Updated: ${formatDateTime(new Date(exportState.weather.lastUpdated || Date.now()))}`
-      })
-    );
-    weatherSection.append(weatherList);
-    doc.append(weatherSection);
-  }
+  doc.append(renderExportHero(exportState.trip));
+  doc.append(renderExportOverview(exportState.trip, exportState.weather));
 
   const itemsSection = ce('section', { className: 'export-section export-section--items' });
-  itemsSection.append(ce('h2', { textContent: 'Checklist by Bag' }));
+  itemsSection.append(ce('h2', { textContent: 'Checklist Inventory' }));
   const bagGroups = groupItemsByBag(exportItems);
   BAGS.forEach(bag => {
     const list = bagGroups[bag];
@@ -661,35 +634,201 @@ export function renderChecklistForExport(state = appState) {
   });
   doc.append(itemsSection);
 
-  const footer = ce('footer', { className: 'export-footer' });
-  footer.append(ce('p', { textContent: `Generated at ${formatDateTime()}` }));
-  doc.append(footer);
+  doc.append(renderExportFooter(exportState.trip));
 
   return doc;
 }
 
-function renderExportGroup(groupKey, items) {
-  const section = ce('section', { className: 'export-group' });
-  section.append(
-    ce('h3', {
-      textContent: CATEGORY_LABELS[groupKey] ?? capitalise(groupKey)
+function renderExportHero(trip = {}) {
+  const hero = ce('header', { className: 'export-hero' });
+
+  const content = ce('div', { className: 'export-hero__content' });
+  content.append(ce('h1', { textContent: 'Business Trip Checklist' }));
+
+  const meta = ce('div', { className: 'export-hero__meta' });
+  meta.append(
+    ce('span', {
+      textContent: `Generated ${formatDateTime(new Date(trip.generatedAt || Date.now()))}`
     })
   );
-  const list = ce('ul', { className: 'export-checklist-list' });
+  if (isFinite(trip.durationDays)) {
+    meta.append(
+      ce('span', {
+        textContent: `${trip.durationDays} day${trip.durationDays === 1 ? '' : 's'}`
+      })
+    );
+  }
+  content.append(meta);
+
+  hero.append(content);
+
+  const badge = ce('div', { className: 'export-hero__badge' });
+  badge.append(
+    ce('span', {
+      className: 'export-hero__badge-code',
+      textContent: pickDestinationCode(trip)
+    })
+  );
+  const locationLabel = [trip.city, trip.country].filter(Boolean).join(', ') || 'Destination Pending';
+  badge.append(
+    ce('span', {
+      className: 'export-hero__badge-label',
+      textContent: locationLabel
+    })
+  );
+  hero.append(badge);
+
+  return hero;
+}
+
+function renderExportOverview(trip, weather) {
+  const overview = ce('section', { className: 'export-section export-overview' });
+  const grid = ce('div', { className: 'export-overview__grid' });
+  grid.append(renderExportTripCard(trip));
+  grid.append(renderExportWeatherCard(weather));
+  overview.append(grid);
+  return overview;
+}
+
+function renderExportTripCard(trip = {}) {
+  const card = ce('article', { className: 'export-card export-card--trip' });
+  card.append(ce('h2', { textContent: 'Trip Passport' }));
+
+  const details = ce('dl', { className: 'export-passport__details' });
+  appendDetail(details, 'Destination', [trip.city, trip.country].filter(Boolean).join(', ') || 'To be decided');
+  if (isFinite(trip.durationDays)) {
+    appendDetail(details, 'Duration', `${trip.durationDays} day${trip.durationDays === 1 ? '' : 's'}`);
+  }
+  appendDetail(details, 'Generated', formatDateTime(new Date(trip.generatedAt || Date.now())));
+  card.append(details);
+
+  const activities = Array.isArray(trip.activities) ? trip.activities : [];
+  const tags = ce('div', { className: 'export-passport__tags' });
+  if (activities.length) {
+    activities.forEach(activity => {
+      const label = ACTIVITY_LABELS[activity] || capitalise(activity);
+      tags.append(ce('span', { className: 'export-tag', textContent: label }));
+    });
+  } else {
+    tags.append(ce('span', { className: 'export-tag export-tag--muted', textContent: 'No special activities listed' }));
+  }
+  card.append(tags);
+
+  return card;
+}
+
+function renderExportWeatherCard(weather) {
+  const card = ce('article', { className: 'export-card export-card--weather' });
+  card.append(ce('h2', { textContent: 'Weather Snapshot' }));
+  if (!weather) {
+    card.append(
+      ce('p', {
+        className: 'export-card__empty',
+        textContent: 'Weather data unavailable. Fetch the forecast to include it here.'
+      })
+    );
+    return card;
+  }
+
+  const summary = weather.summary || 'Unknown';
+  const theme = classifyWeatherTheme(summary);
+
+  const header = ce('div', { className: `export-weather__hero export-weather__hero--${theme}` });
+  header.append(
+    ce('span', {
+      className: 'export-weather__icon',
+      textContent: pickWeatherGlyph(theme)
+    })
+  );
+  const tempBlock = ce('div', { className: 'export-weather__primary' });
+  tempBlock.append(ce('span', { className: 'export-weather__temp', textContent: formatTemperature(weather.tempC) }));
+  tempBlock.append(ce('span', { className: 'export-weather__summary', textContent: summary }));
+  const updated = formatUpdatedTime(weather.lastUpdated);
+  if (updated) {
+    tempBlock.append(ce('span', { className: 'export-weather__updated', textContent: `Updated ${updated}` }));
+  }
+  header.append(tempBlock);
+  card.append(header);
+
+  const metrics = ce('dl', { className: 'export-weather__metrics' });
+  appendDetail(metrics, 'Tomorrow', `${formatTemperature(weather.minC)} / ${formatTemperature(weather.maxC)}`);
+  appendDetail(metrics, 'Wind', formatWind(weather.windKph));
+  appendDetail(metrics, 'Precipitation', formatPrecipitation(weather.precipitation));
+  card.append(metrics);
+
+  const precip = ce('div', { className: 'export-weather__precip' });
+  precip.append(ce('span', { textContent: 'Rain outlook' }));
+  const precipBar = ce('div', { className: 'export-weather__precip-bar' });
+  precipBar.append(
+    ce('span', {
+      className: 'export-weather__precip-fill',
+      style: `width: ${calculatePrecipPercent(weather.precipitation)}%`
+    })
+  );
+  precip.append(precipBar);
+  card.append(precip);
+
+  return card;
+}
+
+function appendDetail(container, label, value) {
+  const dt = ce('dt', { textContent: label });
+  const dd = ce('dd', { textContent: value ?? '—' });
+  container.append(dt, dd);
+}
+
+function renderExportFooter(trip = {}) {
+  const footer = ce('footer', { className: 'export-footer' });
+  const left = ce('div', { className: 'export-footer__col' });
+  left.append(
+    ce('span', {
+      textContent: `Generated ${formatDateTime(new Date(trip.generatedAt || Date.now()))}`
+    })
+  );
+  const right = ce('div', { className: 'export-footer__col export-footer__col--align-end' });
+  const origin = typeof window !== 'undefined' && window.location ? window.location.href : '';
+  if (origin) {
+    right.append(ce('span', { textContent: origin }));
+  }
+  footer.append(left, right);
+  return footer;
+}
+
+function renderExportGroup(groupKey, items) {
+  const section = ce('section', { className: 'export-group' });
+  const label = CATEGORY_LABELS[groupKey] ?? capitalise(groupKey);
+  const icon = CATEGORY_ICONS[groupKey] || '•';
+  const heading = ce('h3', { className: 'export-group__title' });
+  heading.append(ce('span', { className: 'export-group__icon', textContent: icon }));
+  heading.append(ce('span', { textContent: label }));
+  section.append(heading);
+
+  const table = ce('table', { className: 'export-table' });
+  const tbody = ce('tbody');
   items
     .slice()
     .sort((a, b) => a.label.localeCompare(b.label))
     .forEach(item => {
-      const marker = item.checked ? '[x]' : '[ ]';
-      list.append(ce('li', { textContent: `${marker} ${formatExportLine(item)}` }));
+      const row = ce('tr', { className: 'export-table__row' });
+      row.append(
+        ce('td', {
+          className: 'export-table__check',
+          textContent: item.checked ? '☑' : '☐'
+        })
+      );
+      const labelCell = ce('td', { className: 'export-table__label' });
+      const labelStack = ce('div', { className: 'export-item' });
+      if (item.quantity) {
+        labelStack.append(ce('span', { className: 'export-item__qty', textContent: `${item.quantity}×` }));
+      }
+      labelStack.append(ce('span', { className: 'export-item__name', textContent: item.label }));
+      labelCell.append(labelStack);
+      row.append(labelCell);
+      tbody.append(row);
     });
-  section.append(list);
+  table.append(tbody);
+  section.append(table);
   return section;
-}
-
-function formatExportLine(item) {
-  const prefix = item.quantity ? `${item.quantity}× ` : '';
-  return `${prefix}${item.label}`;
 }
 
 function capitalise(value) {
@@ -699,15 +838,94 @@ function capitalise(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function pickDestinationCode(trip = {}) {
+  const source = (trip.city || trip.country || 'TRP').replace(/[^a-zA-Z]/g, '');
+  const code = source.slice(0, 3).toUpperCase();
+  return code.padEnd(3, '•');
+}
+
+function classifyWeatherTheme(summary = '') {
+  const normalized = summary.toLowerCase();
+  if (normalized.includes('storm') || normalized.includes('thunder')) {
+    return 'storm';
+  }
+  if (normalized.includes('snow')) {
+    return 'snow';
+  }
+  if (normalized.includes('rain') || normalized.includes('drizzle') || normalized.includes('shower')) {
+    return 'rainy';
+  }
+  if (normalized.includes('cloud') || normalized.includes('overcast') || normalized.includes('fog')) {
+    return 'cloudy';
+  }
+  if (normalized.includes('clear') || normalized.includes('sun')) {
+    return 'sunny';
+  }
+  return 'default';
+}
+
+function pickWeatherGlyph(theme) {
+  return WEATHER_GLYPHS[theme] || WEATHER_GLYPHS.default;
+}
+
+function formatTemperature(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return '—';
+  }
+  return `${exportNumberFormatter.format(value)}°C`;
+}
+
+function formatPrecipitation(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return '—';
+  }
+  return `${exportNumberFormatter.format(value)} mm`;
+}
+
+function formatWind(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return '—';
+  }
+  return `${exportNumberFormatter.format(value)} km/h`;
+}
+
+function formatUpdatedTime(timestamp) {
+  if (!timestamp) {
+    return '';
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function calculatePrecipPercent(value) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return 0;
+  }
+  const ratio = Math.min(1, Math.max(0, value / PRECIP_BAR_MAX_MM));
+  return Math.round(ratio * 100);
+}
+
 function renderExportBagSection(bagKey, items) {
   const normalizedBag = normalizeBagValue(bagKey) || bagKey || 'carryOn';
   const section = ce('section', { className: 'export-bag-section' });
   const summary = summarizeBagItems(items);
-  section.append(
+  const heading = ce('header', { className: 'export-bag-section__header' });
+  heading.append(
     ce('h3', {
-      textContent: `${BAG_LABELS[normalizedBag] ?? capitalise(normalizedBag)} (${summary.checked}/${summary.count})`
+      className: 'export-bag-section__title',
+      textContent: BAG_LABELS[normalizedBag] ?? capitalise(normalizedBag)
     })
   );
+  heading.append(
+    ce('span', {
+      className: 'export-bag-section__badge',
+      textContent: `${summary.checked}/${summary.count} packed`
+    })
+  );
+  section.append(heading);
   const grouped = groupItemsByGroup(items);
   CATEGORY_SEQUENCE.forEach(groupKey => {
     if (!grouped[groupKey]) {

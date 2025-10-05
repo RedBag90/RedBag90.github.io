@@ -92,7 +92,7 @@ describe('checklist module', () => {
       ...getAppState(),
       items: getAppState().items.filter(item => item.source === 'weather')
     });
-    expect(exportDoc.querySelectorAll('.export-checklist-list li').length).toBeGreaterThan(1);
+    expect(exportDoc.querySelectorAll('.export-table__row').length).toBeGreaterThan(1);
   });
 
   it('computes template diff and applies merge without duplicates', () => {
@@ -136,7 +136,7 @@ describe('checklist module', () => {
     const target = state.items.find(item => item.source !== 'weather') || state.items[0];
     moveItemToBag(target.id, 'work');
     const exportDoc = renderChecklistForExport(getAppState());
-    const headings = Array.from(exportDoc.querySelectorAll('.export-bag-section > h3')).map(node => node.textContent || '');
+    const headings = Array.from(exportDoc.querySelectorAll('.export-bag-section__title')).map(node => node.textContent || '');
     expect(headings.some(text => text.includes('Work'))).toBe(true);
   });
 

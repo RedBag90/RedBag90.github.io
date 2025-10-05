@@ -12,6 +12,22 @@ const WEATHER_CONFIG = {
   forecastUrl: 'https://api.open-meteo.com/v1/forecast'
 };
 
+const numberFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 1,
+  minimumFractionDigits: 0
+});
+
+const PRECIP_PROGRESS_MAX_MM = 10;
+
+const WEATHER_ICON_MAP = {
+  sunny: '&#9728;', // ☀
+  cloudy: '&#9729;', // ☁
+  rainy: '&#9748;', // ☂
+  storm: '&#9889;', // ⚡
+  snow: '&#10052;', // ❄
+  default: '&#9925;' // ⛅
+};
+
 export function configureWeather(options = {}) {
   Object.assign(WEATHER_CONFIG, options);
 }
@@ -149,6 +165,70 @@ function mapWeatherCodeToSummary(code) {
   return CODE_SUMMARIES[code] || 'Mixed weather';
 }
 
+function classifyWeatherTheme(summary = '') {
+  const normalised = summary.toLowerCase();
+  if (normalised.includes('storm') || normalised.includes('thunder')) {
+    return 'storm';
+  }
+  if (normalised.includes('snow')) {
+    return 'snow';
+  }
+  if (normalised.includes('rain') || normalised.includes('drizzle') || normalised.includes('shower')) {
+    return 'rainy';
+  }
+  if (normalised.includes('cloud') || normalised.includes('overcast') || normalised.includes('fog')) {
+    return 'cloudy';
+  }
+  if (normalised.includes('clear') || normalised.includes('sun')) {
+    return 'sunny';
+  }
+  return 'default';
+}
+
+function pickWeatherIcon(theme) {
+  return WEATHER_ICON_MAP[theme] || WEATHER_ICON_MAP.default;
+}
+
+function formatTemperature(value) {
+  if (value === null || value === undefined) {
+    return '—';
+  }
+  return `${numberFormatter.format(value)}°C`;
+}
+
+function formatPrecipitation(value) {
+  if (value === null || value === undefined) {
+    return '—';
+  }
+  return `${numberFormatter.format(value)} mm`;
+}
+
+function formatWind(value) {
+  if (value === null || value === undefined) {
+    return '—';
+  }
+  return `${numberFormatter.format(value)} km/h`;
+}
+
+function formatUpdatedTime(timestamp) {
+  if (!timestamp) {
+    return '';
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function calculatePrecipProgress(value) {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+  const ratio = Math.min(1, Math.max(0, value / PRECIP_PROGRESS_MAX_MM));
+  return Math.round(ratio * 100);
+}
+
 export function renderWeatherStatus({ status, data, error, onRetry } = {}) {
   const output = qs('#weatherOutput');
   if (!output) {
@@ -190,25 +270,65 @@ function renderWeatherHtml(weather) {
   if (!weather) {
     return '<p>No weather data.</p>';
   }
-  const parts = [];
-  parts.push(`<strong>${weather.location?.name || 'Destination'}</strong>`);
-  if (weather.location?.country) {
-    parts.push(`<span class="weather-country">${weather.location.country}</span>`);
-  }
+
+  const locationName = weather.location?.name || 'Destination';
+  const country = weather.location?.country;
   const summary = weather.summary ? weather.summary : '—';
-  parts.push(`<span>Summary: ${summary}</span>`);
-  if (weather.tempC !== null) {
-    parts.push(`<span>Current: ${weather.tempC}°C</span>`);
-  }
-  if (weather.minC !== null || weather.maxC !== null) {
-    parts.push(`<span>Tomorrow: ${weather.minC ?? '—'}°C / ${weather.maxC ?? '—'}°C</span>`);
-  }
-  if (weather.precipitation !== null) {
-    parts.push(`<span>Precipitation: ${weather.precipitation} mm</span>`);
-  }
-  return `<div class="weather-summary">${parts
-    .map(part => `<div>${part}</div>`)
-    .join('')}</div>`;
+  const theme = classifyWeatherTheme(summary);
+  const iconMarkup = pickWeatherIcon(theme);
+
+  const currentTemp = formatTemperature(weather.tempC);
+  const minTemp = formatTemperature(weather.minC);
+  const maxTemp = formatTemperature(weather.maxC);
+  const precipitationValue = formatPrecipitation(weather.precipitation);
+  const windValue = formatWind(weather.windKph);
+  const updatedTime = formatUpdatedTime(weather.lastUpdated);
+  const precipitationProgress = calculatePrecipProgress(weather.precipitation);
+
+  return `
+    <article class="weather-card weather-card--${theme}">
+      <header class="weather-card__header">
+        <div class="weather-card__titles">
+          <span class="weather-card__city">${locationName}</span>
+          ${country ? `<span class="weather-card__country">${country}</span>` : ''}
+        </div>
+        <div class="weather-card__icon" role="img" aria-label="${summary}">
+          <span aria-hidden="true">${iconMarkup}</span>
+        </div>
+      </header>
+      <div class="weather-card__body">
+        <div class="weather-card__current">
+          <span class="weather-card__temp">${currentTemp}</span>
+          <span class="weather-card__condition">${summary}</span>
+          ${updatedTime ? `<span class="weather-card__updated">Updated ${updatedTime}</span>` : ''}
+        </div>
+        <dl class="weather-card__metrics">
+          <div class="weather-card__metric">
+            <dt>Tomorrow</dt>
+            <dd>
+              <span class="weather-chip weather-chip--low">${minTemp}</span>
+              <span class="weather-chip weather-chip--high">${maxTemp}</span>
+            </dd>
+          </div>
+          <div class="weather-card__metric">
+            <dt>Wind</dt>
+            <dd>${windValue}</dd>
+          </div>
+        </dl>
+      </div>
+      <footer class="weather-card__footer">
+        <div class="weather-card__precip">
+          <div class="weather-card__precip-header">
+            <span class="weather-card__precip-label">Precipitation</span>
+            <span class="weather-card__precip-value">${precipitationValue}</span>
+          </div>
+          <div class="weather-card__precip-bar">
+            <span class="weather-card__precip-fill" style="width: ${precipitationProgress}%;"></span>
+          </div>
+        </div>
+      </footer>
+    </article>
+  `.trim();
 }
 
 export function extractWeatherChecklistItems(weather) {
@@ -233,4 +353,3 @@ export class WeatherError extends Error {
     }
   }
 }
-

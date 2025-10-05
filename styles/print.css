@@ -16,11 +16,14 @@
 
   .export-root {
     display: block !important;
+    position: static !important;
+    overflow: visible !important;
     background: transparent !important;
     padding: 0 !important;
   }
 
   .export-document {
+    position: static !important;
     width: 100% !important;
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -28,10 +31,32 @@
     page-break-after: always;
   }
 
-  .export-header,
-  .export-section,
+  .export-hero,
   .export-footer {
     page-break-inside: avoid;
+  }
+
+  .export-section,
+  .export-card,
+  .export-bag-section,
+  .export-table__row {
+    page-break-inside: auto;
+  }
+
+  .export-bag-section + .export-bag-section {
+    page-break-before: avoid;
+  }
+
+  .export-hero,
+  .export-card,
+  .export-bag-section__header {
+    background: #f9fafb !important;
+    box-shadow: none !important;
+  }
+
+  .export-weather__hero,
+  .export-table {
+    box-shadow: none !important;
   }
 
   .export-footer::after {
