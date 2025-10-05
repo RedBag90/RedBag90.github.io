@@ -341,9 +341,6 @@ function formatChecklistLabel(item) {
     parts.push(`${item.quantity}×`);
   }
   parts.push(item.label);
-  if (item.bag) {
-    parts.push(`[${BAG_LABELS[item.bag] ?? item.bag}]`);
-  }
   return parts.join(' ');
 }
 
