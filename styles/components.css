@@ -94,6 +94,15 @@
   margin-bottom: 1.5rem;
 }
 
+.template-toolbar__header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .template-toolbar__label {
   font-weight: 600;
 }
@@ -173,6 +182,11 @@ dialog.modal-save-template {
   .template-toolbar {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .template-toolbar__header {
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .template-toolbar select,
